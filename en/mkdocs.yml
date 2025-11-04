@@ -1159,10 +1159,12 @@ extra_css:
     - assets/css/orange-palette.css
     - assets/css/theme.css
     - assets/lib/json-formatter/json-formatter.css
+    - assets/custom/css/chat.css
 extra_javascript:
     - assets/lib/json-formatter/json-formatter.umd.js
     - assets/lib/highlightjs/highlight.min.js
     - assets/js/theme.js
+    - assets/custom/js/chat.js
 extra:
     social:
         - icon: fontawesome/brands/github-alt
