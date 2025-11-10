@@ -1,5 +1,50 @@
 /* Chat Feature Styles */
 
+/* Tooltip styles */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 112%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.tooltip:hover::before,
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* Chat button */
 .site-chat-toggle {
   position: fixed;
@@ -59,9 +104,45 @@
   align-items:center;
   justify-content:space-between;
 }
-.site-chat__close { background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; }
+.site-chat__close { 
+  background: transparent; 
+  border: none; 
+  color: #fff; 
+  font-size: 20px; 
+  cursor: pointer; 
+  padding: 4px; 
+  display: flex; 
+  align-items: center; 
+  position: relative;
+}
 .site-chat__actions { display: flex; gap: 4px; align-items: center; }
 .site-chat__link { display:inline-block; margin-top:8px; color:#0b74de; text-decoration:underline; }
+
+/* Specific tooltip positioning for header buttons */
+.site-chat__header .tooltip::before {
+  bottom: -40px;
+  background: rgba(0, 0, 0, 0.9);
+}
+
+/* .site-chat__header .tooltip::after {
+  bottom: -32px;
+  border-top-color: transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.9);
+  transform: translateX(-50%) rotate(180deg);
+} */
+
+/* Split view header buttons tooltip positioning */
+.split-view-header .tooltip::before {
+  bottom: -40px;
+  background: rgba(0, 0, 0, 0.9);
+}
+
+/* .split-view-header .tooltip::after {
+  bottom: -32px;
+  border-top-color: transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.9);
+  transform: translateX(-50%) rotate(180deg);
+} */
 
 /* small-screen tweaks */
 @media (max-width: 420px) {
@@ -99,7 +180,7 @@
   border-left: 2px solid #e0e0e0;
 }
 .split-view-panel.resizable {
-  min-width: 200px;
+  min-width: 400px;
   max-width: calc(100% - 200px);
 }
 .split-view-content {
@@ -129,7 +210,7 @@
   font-size: 0.95rem;
   color: #222;
   flex: 1;
-  overflow: hidden;
+  overflow: hidden ;
 }
 
 .site-chat__body iframe {
@@ -145,8 +226,13 @@
   user-select: none;
 }
 
-.split-view-container.resizing .split-view-content {
-  pointer-events: none; /* Prevent iframe from capturing mouse events during resize */
+/* .split-view-container.resizing .split-view-content {
+  pointer-events: none; 
+} */
+
+.split-view-container.resizing iframe {
+  pointer-events: none ; 
+  user-select: none ;
 }
 
 .split-view-header {
@@ -167,6 +253,7 @@
   padding: 4px;
   display: flex;
   align-items: center;
+  position: relative;
 }
 .split-view-resize-handle {
   position: absolute;

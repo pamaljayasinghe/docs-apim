@@ -51,14 +51,51 @@
 <!-- Simple site chat toggle (bottom-right) -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+<style>
+  /* Make the 'open split view' button slightly smaller without affecting other buttons */
+  #open-split-view {
+    padding: 6px;
+    height: 32px;
+    width: 32px;
+    min-width: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #open-split-view .material-icons {
+    font-size: 18px;
+    line-height: 1;
+  }
+  /* Make the 'close split view' button match the open button sizing */
+  #close-split-view {
+    padding: 6px;
+    height: 32px;
+    width: 32px;
+    min-width: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #close-split-view .material-icons {
+    font-size: 16px;
+    line-height: 1;
+  }
+</style>
+
 <div id="site-chat" class="site-chat" aria-hidden="true">
   <div class="site-chat__header">
-    <strong>Chat with us</strong>
+    <div style="display: flex; align-items: center;">
+      <img src="{{ 'images/DocAi.svg' | url }}" alt="DocAI icon" style="width: 24px; margin-right: 8px;" />
+      <strong style="font-size: 1.5em;">APIM DocAi</strong>
+    </div>
     <div class="site-chat__actions">
-      <button id="open-split-view" class="site-chat__close hide-on-mobile" aria-label="Open in split view">
+      <button id="clear-chat-history" class="site-chat__close tooltip" data-tooltip="New Chat" aria-label="Clear chat history">
+        <span class="material-icons">add</span>
+      </button>
+      <button id="open-split-view" class="site-chat__close hide-on-mobile tooltip" data-tooltip="Expand" aria-label="Open in split view">
         <span class="material-icons">open_in_new</span>
       </button>
-      <button class="site-chat__close" aria-label="Close chat">
+      <button class="site-chat__close tooltip" data-tooltip="Close" aria-label="Close chat">
         <span class="material-icons">close</span>
       </button>
     </div>
@@ -70,9 +107,7 @@
 
 <button id="site-chat-toggle" class="site-chat-toggle" aria-label="Open chat">
   <!-- chat SVG icon (speech bubble) -->
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" fill="currentColor"/>
-  </svg>
+    <img src="{{ 'images/DocAi.svg' | url }}" alt="">
 </button>
 
 <!-- Split View Container -->
@@ -83,10 +118,18 @@
   <div id="split-view-panel" class="split-view-panel resizable" style="width: 25%;">
     <div id="resize-handle" class="split-view-resize-handle"></div>
     <div class="split-view-header">
-      <strong>Chat with us</strong>
-      <button id="close-split-view" class="split-view-close" aria-label="Close split view">
-        <span class="material-icons">close</span>
-      </button>
+      <div style="display: flex; align-items: center;">
+        <img src="{{ 'images/DocAi.svg' | url }}" alt="DocAI icon" style="width: 24px; margin-right: 8px;" />
+        <strong style="font-size: 1.5em;">APIM DocAi</strong>
+      </div>
+      <div class="site-chat__actions">
+        <button id="clear-chat-history-split" class="site-chat__close tooltip" data-tooltip="New Chat" aria-label="Clear chat history">
+          <span class="material-icons">add</span>
+        </button>
+        <button id="close-split-view" class="split-view-close tooltip" data-tooltip="Close" aria-label="Close split view">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
     </div>
     <div class="split-view-content-wrapper"></div>
   </div>

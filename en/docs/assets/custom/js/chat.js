@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const closeChatBtn = chatPanel?.querySelector('.site-chat__close[aria-label="Close chat"]');
   
   const openSplitViewBtn = document.getElementById('open-split-view');
+  const clearChatBtn = document.getElementById('clear-chat-history');
+  const clearChatSplitBtn = document.getElementById('clear-chat-history-split');
   const splitViewContainer = document.getElementById('split-view-container');
   const closeSplitViewBtn = document.getElementById('close-split-view');
   
@@ -201,6 +203,30 @@ document.addEventListener('DOMContentLoaded', function() {
     closeSplitViewBtn.addEventListener('click', closeSplitView);
   }
 
+  if (clearChatBtn) {
+    clearChatBtn.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent any default button action
+      
+      // This sends the "clear" signal to the iframe by changing the URL hash.
+      // The code inside the iframe is expected to listen for this signal.
+      if (chatIframe) {
+        chatIframe.src = chatIframe.src.split('#')[0] + '#clearHistory_' + Date.now();
+      }
+    });
+  }
+
+  if (clearChatSplitBtn) {
+    clearChatSplitBtn.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent any default button action
+      
+      // This sends the "clear" signal to the iframe by changing the URL hash.
+      // The code inside the iframe is expected to listen for this signal.
+      if (chatIframe) {
+        chatIframe.src = chatIframe.src.split('#')[0] + '#clearHistory_' + Date.now();
+      }
+    });
+  }
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && splitViewContainer?.classList.contains('active')) {
       closeSplitView();
@@ -219,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('resize', debouncedAdjust);
   window.addEventListener('load', adjustPositionForFooter);
   adjustPositionForFooter(); // Initial call
-  
+
   // Initialize chat iframe reference
   initializeChatIframe();
 });
