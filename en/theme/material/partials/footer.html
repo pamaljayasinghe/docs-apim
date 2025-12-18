@@ -83,6 +83,7 @@
 </style>
 
 <div id="site-chat" class="site-chat" aria-hidden="true">
+  <div id="chat-resize-handle" class="chat-resize-handle"></div>
   <div class="site-chat__header">
     <div style="display: flex; align-items: center;">
       <img src="{{ 'images/DocAi.svg' | url }}" alt="DocAI icon" style="width: 24px; margin-right: 8px;" />
@@ -110,27 +111,9 @@
     <img src="{{ 'images/DocAi.svg' | url }}" alt="">
 </button>
 
-<!-- Split View Container -->
+<!-- Split View Container - only contains the documentation iframe, chat panel is repositioned via CSS -->
 <div id="split-view-container" class="split-view-container">
   <div class="split-view-left">
     <iframe id="split-page-iframe" class="split-view-content" style="height: 100%;" title="Documentation Page"></iframe>
-  </div>
-  <div id="split-view-panel" class="split-view-panel resizable" style="width: 25%;">
-    <div id="resize-handle" class="split-view-resize-handle"></div>
-    <div class="split-view-header">
-      <div style="display: flex; align-items: center;">
-        <img src="{{ 'images/DocAi.svg' | url }}" alt="DocAI icon" style="width: 24px; margin-right: 8px;" />
-        <strong style="font-size: 1.5em;">APIM DocAi</strong>
-      </div>
-      <div class="site-chat__actions">
-        <button id="clear-chat-history-split" class="site-chat__close tooltip" data-tooltip="New Chat" aria-label="Clear chat history">
-          <span class="material-icons">add</span>
-        </button>
-        <button id="close-split-view" class="split-view-close tooltip" data-tooltip="Close" aria-label="Close split view">
-          <span class="material-icons">close</span>
-        </button>
-      </div>
-    </div>
-    <div class="split-view-content-wrapper"></div>
   </div>
 </div>

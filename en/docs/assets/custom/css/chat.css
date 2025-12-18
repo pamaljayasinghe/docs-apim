@@ -78,7 +78,7 @@
   box-shadow: 0 10px 30px rgba(15,15,15,0.15);
   overflow: hidden;
   transform-origin: bottom right;
-  transform: scale(0.95);
+  transform: scale(0.95) translateX(0);
   opacity: 0;
   pointer-events: none;
   transition: transform 0.18s ease, opacity 0.18s ease;
@@ -86,14 +86,102 @@
   font-family: inherit;
   display: flex;
   flex-direction: column;
-  visibility: hidden;
+  /* Use clip-path instead of visibility:hidden to keep iframe alive */
+  clip-path: inset(100%);
 }
 
 .site-chat.open {
-  transform: scale(1);
+  transform: scale(1) translateX(0);
   opacity: 1;
   pointer-events: auto;
-  visibility: visible;
+  clip-path: inset(0);
+}
+
+/* When chat is in split view mode - reposition to fill the split panel */
+.site-chat.in-split-view {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 25%;
+  min-width: 400px;
+  height: 100%;
+  border-radius: 0;
+  z-index: 10001;
+  transform: none;
+  clip-path: inset(0);
+  opacity: 1;
+  pointer-events: auto;
+  border-left: 3px solid #f37c20;
+  box-shadow: -4px 0 10px rgba(0,0,0,0.1);
+}
+
+.site-chat.in-split-view .site-chat__header {
+  height: 50px;
+  padding: 0 16px;
+}
+
+.site-chat.in-split-view .site-chat__body {
+  height: calc(100% - 50px);
+}
+
+/* Resize handle for chat panel - only visible in split view */
+.chat-resize-handle {
+  display: none;
+}
+
+.site-chat.in-split-view .chat-resize-handle {
+  display: block;
+  position: absolute;
+  left: -6px;
+  top: 0;
+  width: 12px;
+  height: 100%;
+  cursor: ew-resize;
+  background: linear-gradient(to right, transparent 0%, rgba(243, 124, 32, 0.2) 50%, transparent 100%);
+  z-index: 100;
+  transition: background 0.2s ease;
+}
+
+.site-chat.in-split-view .chat-resize-handle:hover,
+.site-chat.in-split-view .chat-resize-handle.active {
+  background: linear-gradient(to right, transparent 0%, rgba(243, 124, 32, 0.6) 50%, transparent 100%);
+}
+
+/* Visual indicator line in the middle of resize handle */
+.site-chat.in-split-view .chat-resize-handle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 40px;
+  background: #f37c20;
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+.site-chat.in-split-view .chat-resize-handle:hover::after,
+.site-chat.in-split-view .chat-resize-handle.active::after {
+  opacity: 1;
+  height: 60px;
+}
+
+/* Hide the expand button when in split view */
+.site-chat.in-split-view #open-split-view {
+  display: none;
+}
+
+/* Adjust split view left panel to account for chat panel on right */
+.split-view-container.active .split-view-left {
+  width: 75%;
+  flex: none;
+}
+
+/* Hide the original split-view-panel since we use repositioned chat panel */
+.split-view-container.active .split-view-panel {
+  display: none;
 }
 
 .site-chat__header {
@@ -174,35 +262,11 @@
   overflow: hidden;
   border-right: 2px solid #e0e0e0;
 }
-.split-view-panel {
-  height: 100%;
-  position: relative;
-  border-left: 2px solid #e0e0e0;
-}
-.split-view-panel.resizable {
-  min-width: 400px;
-  max-width: calc(100% - 200px);
-}
 .split-view-content {
   width: 100%;
   height: 100%;
   border: none;
   pointer-events: auto;
-}
-
-.split-view-content-wrapper {
-  flex: 1;
-  height: calc(100% - 50px);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.split-view-content-wrapper iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  flex: 1;
 }
 
 .site-chat__body {
@@ -220,56 +284,6 @@
   display: block;
 }
 
-.split-view-container.resizing .split-view-content-wrapper,
-.split-view-container.resizing .split-page-iframe-wrapper {
-  pointer-events: none;
-  user-select: none;
-}
-
-/* .split-view-container.resizing .split-view-content {
-  pointer-events: none; 
-} */
-
-.split-view-container.resizing iframe {
-  pointer-events: none ; 
-  user-select: none ;
-}
-
-.split-view-header {
-  height: 50px;
-  background: #f37c20;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-}
-.split-view-close {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-.split-view-resize-handle {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 8px;
-  height: 100%;
-  cursor: ew-resize;
-  background: transparent;
-  z-index: 10;
-  transition: background 0.2s ease;
-}
-.split-view-resize-handle:hover,
-.split-view-resize-handle.active {
-  background: rgba(243, 124, 32, 0.3);
-}
 @media (max-width: 768px) {
   .hide-on-mobile {
     display: none;
@@ -280,19 +294,14 @@
   .split-view-left {
     border-right: none;
     border-bottom: 2px solid #e0e0e0;
+    width: 100% !important;
+    height: 50% !important;
   }
-  .split-view-panel {
-    border-left: none;
-    border-top: 2px solid #e0e0e0;
-    min-height: 200px;
-    max-height: calc(100% - 200px);
-  }
-  .split-view-resize-handle {
-    width: 100%;
-    height: 8px;
-    top: 0;
-    left: 0;
-    cursor: ns-resize;
+  .site-chat.in-split-view {
+    width: 100% !important;
+    height: 50% !important;
+    top: auto;
+    bottom: 0;
   }
 }
 
@@ -316,4 +325,56 @@ body.split-view-is-active {
 html.split-view-is-active .md-container,
 body.split-view-is-active .md-container {
   overflow: hidden !important;
+}
+
+/* Smooth transition for split view opening */
+.split-view-container {
+  animation: splitViewFadeIn 0.3s ease-out;
+}
+
+@keyframes splitViewFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Loading indicator for left iframe */
+.split-view-left {
+  position: relative;
+  background: #f5f5f5;
+}
+
+.split-view-left::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #f37c20;
+  border-radius: 50%;
+  animation: splitViewSpinner 0.8s linear infinite;
+  z-index: 1;
+}
+
+.split-view-left iframe {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+}
+
+@keyframes splitViewSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Link hover effect in chatbot for better UX */
+.split-view-content-wrapper a:hover {
+  text-decoration: underline;
 }

@@ -6,22 +6,16 @@ document.addEventListener('DOMContentLoaded', function() {
   
   const openSplitViewBtn = document.getElementById('open-split-view');
   const clearChatBtn = document.getElementById('clear-chat-history');
-  const clearChatSplitBtn = document.getElementById('clear-chat-history-split');
   const splitViewContainer = document.getElementById('split-view-container');
-  const closeSplitViewBtn = document.getElementById('close-split-view');
   
   const splitPageIframe = document.getElementById('split-page-iframe');
-  const splitPanel = document.getElementById('split-view-panel');
-  const resizeHandle = document.getElementById('resize-handle');
+  const chatResizeHandle = document.getElementById('chat-resize-handle');
   
   const footerEl = document.querySelector('footer.md-footer') || document.querySelector('footer');
 
-  // --- Chat iframe management ---
+  // --- Chat iframe reference ---
   let chatIframe = null;
-  const chatBodyContainer = document.querySelector('#site-chat .site-chat__body');
-  const splitChatContainer = document.querySelector('#split-view-panel .split-view-content-wrapper');
 
-  // Initialize chat iframe
   function initializeChatIframe() {
     if (!chatIframe) {
       chatIframe = document.querySelector('#site-chat iframe');
@@ -29,9 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // --- State ---
-  let isResizing = false;
-  let startX = 0, startY = 0, startWidth = 0, startHeight = 0;
   let isSplitViewMode = false;
+  let isResizing = false;
+  let startX = 0;
+  let startWidth = 0;
 
   // --- Utility Functions ---
   function debounce(fn, wait) {
@@ -61,21 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // --- Split View Logic ---
-  function moveChatToSplitView() {
-    initializeChatIframe();
-    if (chatIframe && splitChatContainer) {
-      splitChatContainer.appendChild(chatIframe);
-      isSplitViewMode = true;
-    }
-  }
-
-  function moveChatBackToPanel() {
-    if (chatIframe && chatBodyContainer) {
-      chatBodyContainer.appendChild(chatIframe);
-      isSplitViewMode = false;
-    }
-  }
-
+  // Use CSS classes instead of moving iframe to prevent reload/request interruption
   function openSplitView() {
     if (splitPageIframe) {
       splitPageIframe.src = window.location.href;
@@ -83,10 +64,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (splitViewContainer) {
       splitViewContainer.classList.add('active');
     }
+    // Add class to reposition chat panel into split view
+    if (chatPanel) {
+      chatPanel.classList.add('in-split-view');
+      chatPanel.classList.add('open'); // Keep it visible
+    }
     document.documentElement.classList.add('split-view-is-active');
     document.body.classList.add('split-view-is-active');
-    closeChat();
-    moveChatToSplitView();
+    isSplitViewMode = true;
   }
 
   function closeSplitView() {
@@ -96,9 +81,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (splitPageIframe) {
       splitPageIframe.src = 'about:blank'; // Clear the iframe
     }
+    if (chatPanel) {
+      chatPanel.classList.remove('in-split-view');
+      chatPanel.classList.remove('open'); // Hide it
+      chatPanel.style.width = ''; // Reset width to default
+    }
+    // Reset left panel width
+    const leftPanel = document.querySelector('.split-view-left');
+    if (leftPanel) {
+      leftPanel.style.width = '';
+    }
     document.documentElement.classList.remove('split-view-is-active');
     document.body.classList.remove('split-view-is-active');
-    moveChatBackToPanel();
+    isSplitViewMode = false;
   }
 
   // --- Footer Overlap Adjustment ---
@@ -123,50 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // --- Resizable Panel Logic ---
-  function startResize(e) {
-    isResizing = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    
-    if (window.innerWidth > 768) {
-      startWidth = splitPanel.offsetWidth;
-    } else {
-      startHeight = splitPanel.offsetHeight;
-    }
-    
-    splitViewContainer.classList.add('resizing');
-    resizeHandle.classList.add('active');
-    e.preventDefault();
-  }
-
-  function doResize(e) {
-    if (!isResizing) return;
-
-    const newX = e.clientX;
-    const newY = e.clientY;
-
-    requestAnimationFrame(() => {
-      if (window.innerWidth > 768) { // Horizontal
-        const deltaX = startX - newX;
-        const newWidth = Math.max(200, Math.min(startWidth + deltaX, splitViewContainer.offsetWidth - 200));
-        splitPanel.style.width = `${newWidth}px`;
-      } else { // Vertical
-        const deltaY = startY - newY;
-        const newHeight = Math.max(200, Math.min(startHeight + deltaY, splitViewContainer.offsetHeight - 200));
-        splitPanel.style.height = `${newHeight}px`;
-      }
-    });
-  }
-
-  function stopResize() {
-    if (isResizing) {
-      isResizing = false;
-      splitViewContainer.classList.remove('resizing');
-      resizeHandle.classList.remove('active');
-    }
-  }
-
   // --- Event Listeners ---
   if (chatToggle) {
     chatToggle.addEventListener('click', () => {
@@ -183,7 +134,13 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   if (closeChatBtn) {
-    closeChatBtn.addEventListener('click', closeChat);
+    closeChatBtn.addEventListener('click', () => {
+      if (isSplitViewMode) {
+        closeSplitView();
+      } else {
+        closeChat();
+      }
+    });
   }
 
   document.addEventListener('click', (e) => {
@@ -199,24 +156,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  if (closeSplitViewBtn) {
-    closeSplitViewBtn.addEventListener('click', closeSplitView);
-  }
-
   if (clearChatBtn) {
     clearChatBtn.addEventListener('click', (e) => {
-      e.preventDefault(); // Prevent any default button action
-      
-      // This sends the "clear" signal to the iframe by changing the URL hash.
-      // The code inside the iframe is expected to listen for this signal.
-      if (chatIframe) {
-        chatIframe.src = chatIframe.src.split('#')[0] + '#clearHistory_' + Date.now();
-      }
-    });
-  }
-
-  if (clearChatSplitBtn) {
-    clearChatSplitBtn.addEventListener('click', (e) => {
       e.preventDefault(); // Prevent any default button action
       
       // This sends the "clear" signal to the iframe by changing the URL hash.
@@ -233,11 +174,60 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  if (resizeHandle) {
-    resizeHandle.addEventListener('mousedown', startResize);
+  // --- Resize Logic for Chat Panel in Split View ---
+  let resizeOverlay = null;
+
+  function createResizeOverlay() {
+    if (!resizeOverlay) {
+      resizeOverlay = document.createElement('div');
+      resizeOverlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;cursor:ew-resize;';
+    }
+    document.body.appendChild(resizeOverlay);
+  }
+
+  function removeResizeOverlay() {
+    if (resizeOverlay && resizeOverlay.parentNode) {
+      resizeOverlay.parentNode.removeChild(resizeOverlay);
+    }
+  }
+
+  function startResize(e) {
+    if (!isSplitViewMode) return;
+    isResizing = true;
+    startX = e.clientX;
+    startWidth = chatPanel.offsetWidth;
+    chatResizeHandle.classList.add('active');
+    createResizeOverlay();
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function doResize(e) {
+    if (!isResizing) return;
+    e.preventDefault();
+    const deltaX = startX - e.clientX;
+    const newWidth = Math.max(350, Math.min(startWidth + deltaX, window.innerWidth - 300));
+    chatPanel.style.width = `${newWidth}px`;
+    // Adjust left panel width accordingly
+    const leftPanel = document.querySelector('.split-view-left');
+    if (leftPanel) {
+      leftPanel.style.width = `calc(100% - ${newWidth}px)`;
+    }
+  }
+
+  function stopResize() {
+    if (isResizing) {
+      isResizing = false;
+      chatResizeHandle.classList.remove('active');
+      removeResizeOverlay();
+    }
+  }
+
+  if (chatResizeHandle) {
+    chatResizeHandle.addEventListener('mousedown', startResize);
     document.addEventListener('mousemove', doResize);
     document.addEventListener('mouseup', stopResize);
-    document.addEventListener('mouseleave', stopResize); // Also stop if mouse leaves window
+    document.addEventListener('mouseleave', stopResize);
   }
 
   const debouncedAdjust = debounce(adjustPositionForFooter, 50);
@@ -248,4 +238,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize chat iframe reference
   initializeChatIframe();
+
+  // --- Listen for postMessage from chatbot iframe to open links in split view ---
+  window.addEventListener('message', function(event) {
+    // Handle link opening in split view
+    if (event.data && event.data.type === 'OPEN_LINK_IN_SPLIT_VIEW') {
+      const url = event.data.url;
+      if (url) {
+        openLinkInSplitView(url);
+      }
+    }
+  });
+
+  function openLinkInSplitView(url) {
+    // Transform external doc URLs to use current origin so they can load in iframe
+    let finalUrl = url;
+    try {
+      const urlObj = new URL(url, window.location.href);
+      
+      // If URL points to external docs domain, rewrite to current origin
+      // This handles cases like https://apim.docs.wso2.com/en/latest/... -> http://localhost:8000/en/latest/...
+      if (urlObj.hostname !== window.location.hostname) {
+        // Extract the path and use current origin
+        finalUrl = window.location.origin + urlObj.pathname + urlObj.search + urlObj.hash;
+      } else {
+        finalUrl = urlObj.href;
+      }
+    } catch (e) {
+      // Fallback: prepend current origin if URL parsing fails
+      finalUrl = window.location.origin + (url.startsWith('/') ? url : '/' + url);
+    }
+    
+    // If split view is already active, just update the left iframe
+    if (splitViewContainer?.classList.contains('active')) {
+      if (splitPageIframe) {
+        splitPageIframe.src = finalUrl;
+      }
+    } else {
+      // Open split view with the link in the left panel
+      if (splitPageIframe) {
+        splitPageIframe.src = finalUrl;
+      }
+      if (splitViewContainer) {
+        splitViewContainer.classList.add('active');
+      }
+      document.documentElement.classList.add('split-view-is-active');
+      document.body.classList.add('split-view-is-active');
+      closeChat();
+      moveChatToSplitView();
+    }
+  }
 });
