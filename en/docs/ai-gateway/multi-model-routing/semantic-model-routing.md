@@ -70,7 +70,17 @@ Follow these steps to configure the Semantic Routing policy for your AI API:
 2. Select the AI API for which you want to configure semantic routing.
 3. Navigate to **API Configurations**, and click **Policies**.
 4. Look for the policy named **Semantic Routing** listed under the Common Policies section within the policy list. Drag and drop the **Semantic Routing** policy to the **Request** flow of `/chat/completions` POST operation.
+
+    [![Attach Semantic Model Routing Policy]({{base_path}}/assets/img/learn/ai-gateway/attach-model-semantic-model-routing.png){: style="width:90%"}]({{base_path}}/assets/img/learn/ai-gateway/attach-model-semantic-model-routing.png)
+
 5. Fill in the requested details and click **Save**.
+
+    [![Semantic Model Routing Policy Configuration]({{base_path}}/assets/img/learn/ai-gateway/semantic-model-routing-policy-configuration.png){: style="width:40%"}]({{base_path}}/assets/img/learn/ai-gateway/semantic-model-routing-policy-configuration.png)
+
+!!! note "AWS Bedrock Configuration"
+    When configuring semantic routing with AWS Bedrock as a multi-model provider service, you must select both the **Provider** (model family) and the **Model** for each route and the default model. The **Provider** dropdown lists the model families you have set up in the Admin Portal (such as Meta, Anthropic, DeepSeek, etc.), and once a provider is selected, the **Model** dropdown will display the specific models available under that provider.
+
+    [![AWS Bedrock Semantic Model Routing Policy Configuration]({{base_path}}/assets/img/learn/ai-gateway/aws-bedrock-semantic-model-routing-policy-configuration.png){: style="width:40%"}]({{base_path}}/assets/img/learn/ai-gateway/aws-bedrock-semantic-model-routing-policy-configuration.png)
 
 ## Policy Configuration
 
@@ -109,7 +119,7 @@ For each environment (Production/Sandbox), you can configure multiple routes:
 
 ??? example "Click to expand configuration example"
 
-    **Scenario**: Route weather-related queries to a specialized weather model, cooking and recipe questions to a culinary model, and everything else to a general-purpose model.
+    **Scenario**: Route weather-related queries to a specialized weather model and everything else to a general-purpose model.
 
     1. Create an AI API with multiple model endpoints configured.
     2. Add the Semantic Routing policy with the following configuration:
@@ -119,36 +129,21 @@ For each environment (Production/Sandbox), you can configure multiple routes:
     **Production Routes**:
 
     **Route 1 - Weather Information**
-    - **Model**: `gpt-4-weather`
-    - **Endpoint**: `weather-endpoint`
-    - **Score Threshold**: `0.85`
+    - **Model**: `gpt-4o-mini`
+    - **Endpoint**: `gpt-4o-mini`
+    - **Score Threshold**: `0.8`
     - **Utterances**:
-        - "What is the weather forecast for tomorrow?"
-        - "Will it rain this weekend?"
-        - "What is the current temperature outside?"
-        - "Is there a storm coming next week?"
-        - "How humid will it be today?"
-        - "What is the wind speed in my city?"
-        - "Is it going to snow this winter?"
-        - "What is the UV index for today?"
-
-    **Route 2 - Cooking and Recipes**
-    - **Model**: `gpt-4-culinary`
-    - **Endpoint**: `culinary-endpoint`
-    - **Score Threshold**: `0.85`
-    - **Utterances**:
-        - "How do I bake a chocolate cake from scratch?"
-        - "What ingredients do I need to make pasta carbonara?"
-        - "Can you give me a recipe for vegetable fried rice?"
-        - "How long should I cook chicken breast in the oven?"
-        - "What dishes can I make with potatoes and cheese?"
-        - "How do I make homemade sourdough bread?"
-        - "What is a good beginner recipe for cooking fish?"
-        - "How do I prepare sushi rolls at home?"
+        - "weather"
+        - "temperature"
+        - "forecast"
+        - "rain"
+        - "snow"
+        - "wind"
+        - "humidity"
 
     **Default Model**:
-    - **Model**: `gpt-4-general`
-    - **Endpoint**: `general-endpoint`
+    - **Model**: `gpt-4o`
+    - **Endpoint**: `gpt-4o`
 
     3. Save and deploy the API.
 
@@ -160,31 +155,19 @@ For each environment (Production/Sandbox), you can configure multiple routes:
       "messages": [
         {
           "role": "user",
-          "content": "What is the weather forecast for this weekend?"
+          "content": "What is the weather forecast for tomorrow in Paris"
         }
       ]
     }
     ```
 
-    **Request 2 (Routes to Cooking and Recipes)**:
+    **Request 2 (Routes to Default Model)**:
     ```json
     {
       "messages": [
         {
           "role": "user",
-          "content": "How do I bake a moist chocolate cake?"
-        }
-      ]
-    }
-    ```
-
-    **Request 3 (Routes to Default Model)**:
-    ```json
-    {
-      "messages": [
-        {
-          "role": "user",
-          "content": "What is the capital of France?"
+          "content": "Generate a small HTML code"
         }
       ]
     }
@@ -232,3 +215,5 @@ The score threshold determines the minimum cosine similarity (0.0 to 1.0) requir
 
 !!! note "AWS Bedrock Multi-Model Provider"
     If you are configuring semantic routing with AWS Bedrock as a multi-model provider service, you must select both the **Provider** (model family) and the **Model** for each route and the default model. The **Provider** dropdown lists the model families you have set up in the Admin Portal (such as Meta, Anthropic, DeepSeek, etc.), and once a provider is selected, the **Model** dropdown will display the specific models available under that provider.
+
+    [![AWS Bedrock Semantic Model Routing Policy Configuration]({{base_path}}/assets/img/learn/ai-gateway/aws-bedrock-semantic-model-routing-policy-configuration.png){: style="width:40%"}]({{base_path}}/assets/img/learn/ai-gateway/aws-bedrock-semantic-model-routing-policy-configuration.png)

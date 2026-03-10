@@ -40,7 +40,17 @@ Follow these steps to configure the Intelligent Model Routing policy for your AI
 2. Select the AI API for which you want to configure intelligent model routing.
 3. Navigate to **API Configurations**, and click **Policies**.
 4. Look for the policy named **Intelligent Model Routing** listed under the Common Policies section within the policy list. Drag and drop the **Intelligent Model Routing** policy to the **Request** flow of `/chat/completions` POST operation.
+
+    [![Attach Intelligent Model Routing Policy]({{base_path}}/assets/img/learn/ai-gateway/attach-model-intelligent-model-routing.png){: style="width:90%"}]({{base_path}}/assets/img/learn/ai-gateway/attach-model-intelligent-model-routing.png)
+
 5. Fill in the requested details and click **Save**.
+
+    [![Intelligent Model Routing Policy Configuration]({{base_path}}/assets/img/learn/ai-gateway/intelligent-model-routing-policy-configuration.png){: style="width:40%"}]({{base_path}}/assets/img/learn/ai-gateway/intelligent-model-routing-policy-configuration.png)
+
+!!! note "AWS Bedrock Configuration"
+    When configuring intelligent model routing with AWS Bedrock as a multi-model provider service, you must select both the **Provider** (model family) and the **Model** for each rule and the default model. The **Provider** dropdown lists the model families you have set up in the Admin Portal (such as Meta, Anthropic, DeepSeek, etc.), and once a provider is selected, the **Model** dropdown will display the specific models available under that provider.
+
+    [![AWS Bedrock Intelligent Model Routing Policy Configuration]({{base_path}}/assets/img/learn/ai-gateway/aws-bedrock-intelligent-model-routing-policy-configuration.png){: style="width:40%"}]({{base_path}}/assets/img/learn/ai-gateway/aws-bedrock-intelligent-model-routing-policy-configuration.png)
 
 ## Policy Configuration
 
@@ -75,7 +85,7 @@ For each environment (Production/Sandbox), you can configure multiple routing ru
 
 ??? example "Click to expand configuration example"
 
-    **Scenario**: Route weather-related queries to a specialized weather model, cooking and recipe questions to a culinary model, and everything else to a general-purpose model. This example uses short keyword-style queries to demonstrate why Intelligent Model Routing is the recommended choice over Semantic Routing for such inputs.
+    **Scenario**: Route weather-related queries to a specialized weather model and everything else to a general-purpose model. This example uses short keyword-style queries to demonstrate why Intelligent Model Routing is the recommended choice over Semantic Routing for such inputs.
 
     1. Create an AI API with multiple model endpoints configured.
     2. Add the Intelligent Model Routing policy with the following configuration:
@@ -85,68 +95,38 @@ For each environment (Production/Sandbox), you can configure multiple routing ru
     **Production Routing Rules**:
 
     **Rule 1**
-    - **Rule Name**: `Weather Information`
-    - **Context**: `Requests about weather conditions, temperature, forecasts, rain, snow, wind, humidity, climate, and related topics.`
-    - **Model**: `gpt-4-weather`
-    - **Endpoint**: `weather-endpoint`
-
-    **Rule 2**
-    - **Rule Name**: `Cooking and Recipes`
-    - **Context**: `Requests about cooking, recipes, food preparation, ingredients, baking, dishes, and culinary techniques.`
-    - **Model**: `gpt-4-culinary`
-    - **Endpoint**: `culinary-endpoint`
+    - **Rule Name**: `Coding`
+    - **Context**: `Code Related Question`
+    - **Model**: `gpt-4o-mini`
+    - **Endpoint**: `gpt-4o-mini`
 
     **Default Model**:
-    - **Model**: `gpt-4-general`
-    - **Endpoint**: `general-endpoint`
+    - **Model**: `gpt-4o`
+    - **Endpoint**: `gpt-4o`
 
     3. Save and deploy the API.
 
-    4. Test with different queries, including short keyword-style inputs:
+    4. Test with different queries:
 
-    **Request 1 — Short query (Routes to Weather Information)**:
+    **Request 1 (Routes to Coding)**:
     ```json
     {
       "messages": [
         {
           "role": "user",
-          "content": "rain forecast"
+          "content": "Generate a small HTML code"
         }
       ]
     }
     ```
 
-    **Request 2 — Short query (Routes to Cooking and Recipes)**:
+    **Request 2 — No match (Routes to Default Model)**:
     ```json
     {
       "messages": [
         {
           "role": "user",
-          "content": "bake"
-        }
-      ]
-    }
-    ```
-
-    **Request 3 — Full sentence (Routes to Weather Information)**:
-    ```json
-    {
-      "messages": [
-        {
-          "role": "user",
-          "content": "What is the temperature and humidity like today?"
-        }
-      ]
-    }
-    ```
-
-    **Request 4 — No match (Routes to Default Model)**:
-    ```json
-    {
-      "messages": [
-        {
-          "role": "user",
-          "content": "What is the capital of France?"
+          "content": "What is the weather forecast for tomorrow in Paris"
         }
       ]
     }
@@ -177,3 +157,5 @@ For each environment (Production/Sandbox), you can configure multiple routing ru
 
 !!! note "AWS Bedrock Multi-Model Provider"
     If you are configuring intelligent model routing with AWS Bedrock as a multi-model provider service, you must select both the **Provider** (model family) and the **Model** for each rule and the default model. The **Provider** dropdown lists the model families you have set up in the Admin Portal (such as Meta, Anthropic, DeepSeek, etc.), and once a provider is selected, the **Model** dropdown will display the specific models available under that provider.
+
+    [![AWS Bedrock Intelligent Model Routing Policy Configuration]({{base_path}}/assets/img/learn/ai-gateway/aws-bedrock-intelligent-model-routing-policy-configuration.png){: style="width:40%"}]({{base_path}}/assets/img/learn/ai-gateway/aws-bedrock-intelligent-model-routing-policy-configuration.png)
